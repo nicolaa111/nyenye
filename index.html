@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>💖 Mood Fortune Cookie 💖</title>
+<style>
+  /* === GENERAL STYLES === */
+  body {
+    font-family: 'Comic Neue', sans-serif;
+    background: linear-gradient(135deg, #ffd1dc, #ffe0b2, #d1c4e9);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    min-height: 100vh;
+    margin: 0;
+    padding: 20px;
+    color: #333;
+  }
+  h1 {
+    font-size: 2.5rem;
+    text-align: center;
+    margin-bottom: 30px;
+  }
+
+  /* === EMOJI MOOD BUTTONS === */
+  .emoji-row {
+    display: flex;
+    gap: 15px;
+    margin-bottom: 40px;
+  }
+  .emoji {
+    font-size: 3rem;
+    cursor: pointer;
+    transition: transform 0.2s;
+  }
+  .emoji:hover {
+    animation: bounce 0.5s ease;
+  }
+
+  @keyframes bounce {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-10px); }
+  }
+
+  /* === COOKIE === */
+  .cookie {
+    font-size: 5rem;
+    cursor: pointer;
+    margin-bottom: 20px;
+    transition: transform 0.2s;
+  }
+  .cookie.shake {
+    animation: shake 0.5s ease;
+  }
+  @keyframes shake {
+    0% { transform: rotate(0deg); }
+    25% { transform: rotate(-15deg); }
+    50% { transform: rotate(15deg); }
+    75% { transform: rotate(-10deg); }
+    100% { transform: rotate(0deg); }
+  }
+
+  /* === FORTUNE TEXT === */
+  .fortune {
+    font-size: 1.5rem;
+    text-align: center;
+    max-width: 400px;
+    min-height: 60px;
+    margin-bottom: 30px;
+    opacity: 0;
+  }
+  .fortune.reveal {
+    animation: reveal 0.6s ease forwards;
+  }
+  @keyframes reveal {
+    0% { opacity: 0; transform: translateY(-20px); }
+    100% { opacity: 1; transform: translateY(0); }
+  }
+
+  /* === BUTTONS === */
+  .buttons {
+    display: flex;
+    gap: 15px;
+  }
+  button {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 15px;
+    background: #fff3e0;
+    cursor: pointer;
+    font-size: 1rem;
+    transition: all 0.2s;
+  }
+  button:hover {
+    transform: scale(1.05);
+    background: #ffe0b2;
+  }
+</style>
+</head>
+<body>
+
+<h1>💖 Mood Fortune Cookie 💖</h1>
+
+<!-- Mood Selection -->
+<div class="emoji-row">
+  <span class="emoji" data-mood="happy">😄</span>
+  <span class="emoji" data-mood="sad">😢</span>
+  <span class="emoji" data-mood="angry">😡</span>
+  <span class="emoji" data-mood="calm">😌</span>
+  <span class="emoji" data-mood="sleepy">😴</span>
+  <span class="emoji" data-mood="confident">😎</span>
+</div>
+
+<!-- Cookie -->
+<div class="cookie">🍪</div>
+
+<!-- Fortune Text -->
+<div class="fortune"></div>
+
+<!-- Buttons -->
+<div class="buttons">
+  <button id="saveBtn">Save Mood</button>
+  <button id="shareBtn">Share Fortune</button>
+</div>
+
+<script>
+  // === FORTUNE DATA ===
+  const moods = {
+    happy: [
+      "Smile so much today that your teeth get jealous 😁",
+      "Dance like nobody’s watching… but someone totally is 🕺💃",
+      "You’re sparkling so much, you might need sunglasses 😎",
+      "Give yourself a high-five. You deserve it 🖐️✨",
+      "Laugh until your belly hurts. Bonus: snort counts too 😂",
+      "Spread happiness like confetti 🎉 (warning: cleanup may be required)",
+      "Sing loudly in the shower like a rockstar 🎤🚿",
+      "Be so cheerful that even the grumpy cat next door smiles 🐱",
+      "Wear socks that make your feet feel like royalty 🧦👑",
+      "Hug a plant. Plants need love too 🌱❤️"
+    ],
+    sad: [
+      "Cuddle a pillow. If it refuses, negotiate 🛏️🤝",
+      "Tears are just glittering rain from your soul 🌧️✨",
+      "Eat chocolate. If anyone judges, call it a mood potion 🍫🪄",
+      "Cry like nobody’s watching… but maybe do it in private 😭",
+      "Listen to sad songs. Then dance badly to shake it off 🎶💃",
+      "Take a bubble bath. Pretend you’re royalty 🛁👑",
+      "Text your funniest friend. Laughter heals faster than medicine 😂",
+      "Wear your comfiest clothes. Bonus: add socks with cartoons 🧦🐻",
+      "Watch cute animal videos. Warning: may induce extreme aww 😺",
+      "Make a sad face in the mirror… then make a silly one immediately after 😜"
+    ],
+    angry: [
+      "Punch a pillow. Bonus points if it squeaks 🥊🟣",
+      "Count to 10… or 100… or 1000. Rage is an art ⛴️🔥",
+      "Yell at the clouds. They deserve it ☁️😤",
+      "Stomp your feet like a tiny dinosaur 🦖",
+      "Scribble on paper. Extra points for doodles 🖊️😎",
+      "Throw a stress ball like a pro athlete 🎾💪",
+      "Shout your frustrations into a sock puppet 🧦😡",
+      "Take a walk and glare at everything mildly 😤🚶",
+      "Imagine your problems are balloons… then pop them 🎈💥",
+      "Dance angrily. Bonus: jazz hands are encouraged 💃🔥"
+    ],
+    calm: [
+      "Breathe in… breathe out… now nap 🛌💤",
+      "Pet a cat. Or a dog. Or a cactus. Whatever’s nearby 🐱🌵",
+      "Meditate. If meditation fails, snack. Snack always works 🍪",
+      "Sip tea slowly… like a wizard casting a spell 🍵🧙",
+      "Walk barefoot on grass and pretend you’re in a fantasy movie 🌿✨",
+      "Draw a smiley face somewhere random 😄🖊️",
+      "Listen to soft music and imagine yourself as a cloud ☁️🎶",
+      "Stretch like a cat. Feel majestic 🐈‍⬛🧘",
+      "Watch fish swim in a bowl. Contemplate life 🐟💭",
+      "Imagine your calm energy is making the world a better place 🌎💖"
+    ],
+    sleepy: [
+      "Nap like it’s your superpower. Bonus: dream in HD 💤🦸",
+      "Snooze now, conquer later. Or never. That’s fine too 😎",
+      "If you fall asleep mid-task, call it ‘immersive research’ 📚😴",
+      "Yawn dramatically and blame the moon 🌙😪",
+      "Build a blanket fort. Rule it as a sleepy monarch 🏰💤",
+      "Drink warm milk like a tiny wizard 🥛✨",
+      "Pretend your bed is a cloud. Nap accordingly ☁️🛌",
+      "Sleepy? Perfect excuse to ignore responsibilities 🫣",
+      "Doze off with a book on your face. Intellectual sleep 😌📖",
+      "Dream of tacos. Or kittens. Or both 🌮🐱💤"
+    ],
+    confident: [
+      "Strut like the world is your catwalk 💃✨",
+      "Give yourself a compliment. Extra points if you wink 😉",
+      "Take a selfie. The world needs your greatness 📸🔥",
+      "Talk to yourself in the mirror. You’re brilliant 🪞💖",
+      "Pretend you’re a secret superhero. Bonus points for dramatic poses 🦸",
+      "Smile mysteriously… people will wonder why 😏✨",
+      "Wear sunglasses indoors. Confidence level: 100 😎",
+      "Speak in movie quotes all day. Extra flair required 🎬",
+      "Drop mic after saying literally anything 🎤💥",
+      "Walk past problems like you’re in a slow-motion montage 🎶"
+    ]
+  };
+
+  const emojis = document.querySelectorAll('.emoji');
+  const cookie = document.querySelector('.cookie');
+  const fortuneText = document.querySelector('.fortune');
+
+  emojis.forEach(emoji => {
+    emoji.addEventListener('click', () => {
+      const mood = emoji.dataset.mood;
+      const randomFortune = moods[mood][Math.floor(Math.random() * moods[mood].length)];
+
+      // Shake cookie
+      cookie.classList.add('shake');
+      fortuneText.classList.remove('reveal');
+      fortuneText.style.opacity = 0;
+
+      setTimeout(() => {
+        cookie.classList.remove('shake');
+        fortuneText.textContent = randomFortune;
+        fortuneText.classList.add('reveal');
+      }, 500);
+    });
+  });
+
+  // Optional button functionality
+  document.getElementById('saveBtn').addEventListener('click', () => {
+    if (fortuneText.textContent) {
+      localStorage.setItem('lastMoodFortune', fortuneText.textContent);
+      alert('Mood saved! 🎉');
+    } else {
+      alert('Click an emoji first!');
+    }
+  });
+
+  document.getElementById('shareBtn').addEventListener('click', () => {
+    if (fortuneText.textContent) {
+      navigator.clipboard.writeText(fortuneText.textContent);
+      alert('Fortune copied to clipboard! 📋');
+    } else {
+      alert('Click an emoji first!');
+    }
+  });
+</script>
+
+</body>
+</html>
